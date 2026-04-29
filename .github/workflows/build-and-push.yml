@@ -6,7 +6,7 @@ on:
     tags: ['v*']
 
 env:
-  REGISTRY: registry.cn-hangzhou.aliyuncs.com/aimode/multica
+  REGISTRY: registry.cn-hangzhou.aliyuncs.com/multica
 
 jobs:
   build-and-push:
