@@ -9,39 +9,17 @@
 name: multica
 
 services:
-  postgres:
-    image: pgvector/pgvector:pg17
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-multica}
-      POSTGRES_USER: ${POSTGRES_USER:-multica}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-multica}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-multica} -d ${POSTGRES_DB:-multica}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - multica-network
-
   backend:
-    image: registry.cn-hangzhou.aliyuncs.com/aimode/multica/multica-backend:latest
-    depends_on:
-      postgres:
-        condition: service_healthy
+    image: registry.cn-hangzhou.aliyuncs.com/multica/multica-backend:latest
     ports:
       - "${PORT:-8080}:8080"
     volumes:
       - backend_uploads:/app/data/uploads
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:-multica}:${POSTGRES_PASSWORD:-multica}@postgres:5432/${POSTGRES_DB:-multica}?sslmode=disable
+      DATABASE_URL: ${DATABASE_URL}
       PORT: "8080"
       METRICS_ADDR: ${METRICS_ADDR:-}
-      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      JWT_SECRET: ${JWT_SECRET}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
@@ -66,9 +44,7 @@ services:
       - multica-network
 
   frontend:
-    image: registry.cn-hangzhou.aliyuncs.com/aimode/multica/multica-web:latest
-    depends_on:
-      - backend
+    image: registry.cn-hangzhou.aliyuncs.com/multica/multica-web:latest
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     environment:
@@ -78,7 +54,6 @@ services:
       - multica-network
 
 volumes:
-  pgdata:
   backend_uploads:
 
 networks:
